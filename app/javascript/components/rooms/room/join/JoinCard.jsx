@@ -205,13 +205,6 @@ export default function JoinCard() {
             <h1 className="mt-2">
               {publicRoom?.data.name}
             </h1>
-            <ButtonLink
-              variant="brand-outline"
-              className="mt-3 mb-0 cursor-pointer"
-              to={`/rooms/${friendlyId}/public_recordings`}
-            >
-              <span> <VideoCameraIcon className="hi-s text-brand" /> {t('view_recordings')} </span>
-            </ButtonLink>
           </Col>
           <Col>
             <Stack direction="vertical" gap={3}>
@@ -227,16 +220,6 @@ export default function JoinCard() {
             <Form methods={methods} onSubmit={handleJoin}>
               <FormControl field={fields.name} type="text" disabled={currentUser?.signed_in} autoFocus={!currentUser?.signed_in} />
               {hasAccessCode && <FormControl field={fields.accessCode} type="text" autoFocus={currentUser?.signed_in} />}
-              {publicRoom?.data?.recording_consent === 'true' && (
-                <FormControlGeneric
-                  id={fields.recordingConsent.controlId}
-                  className="text-muted"
-                  field={fields.recordingConsent}
-                  label={fields.recordingConsent.label}
-                  control={RegularForm.Check}
-                  type="checkbox"
-                />
-              )}
 
               <Button
                 variant="brand"

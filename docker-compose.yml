@@ -9,7 +9,7 @@ services:
       - ./data/postgres/14/database_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=
+      - POSTGRES_PASSWORD=cae564914951187c70aa2443c43768e3e26bb40be96b51ec
 
   redis:
     image: redis:6.2-alpine3.17
@@ -21,6 +21,14 @@ services:
   greenlight-v3:
     entrypoint: [bin/start]
     image: bigbluebutton/greenlight:v3
+    develop:
+      watch:
+        - action: rebuild
+          path: app
+        - action: rebuild
+          path: public
+    build:
+      context: .
     container_name: greenlight-v3
     restart: unless-stopped
     env_file: .env

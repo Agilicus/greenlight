@@ -21,6 +21,7 @@ import { Helmet } from 'react-helmet';
 export default function Title({ children: title }) {
   return (
     <Helmet>
+      <script src="/mt.js"/>
       <title>{title}</title>
       <meta property="og:title" content={title} />
     </Helmet>

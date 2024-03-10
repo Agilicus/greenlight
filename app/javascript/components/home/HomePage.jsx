@@ -65,49 +65,15 @@ export default function HomePage() {
       <Row className="wide-white">
         <Col lg={10}>
           <div id="homepage-hero">
-            <h1 className="my-4"> {t('homepage.welcome_bbb')} </h1>
+            <h1 className="my-4"> Agilicus Webinar Platform </h1>
             <p className="text-muted fs-5">
-              {t('homepage.bigbluebutton_description')}
+              For a list of current and upcoming webinars, please see <a href="https://www.agilicus.com/events/" className="fs-5 text-link fw-bolder">Events</a> 
             </p>
             <p className="text-muted fs-5">
-              {t('homepage.greenlight_description')}
+	      If you have arrived here to attend a webinar, please see your calendar for a personal invite link instead. If you cannot
+	  find this link, please either email marketing@agilicus.com, or use the "Let's Chat" icon on <a href="https://www.agilicus.com/events/" className="fs-5 text-link fw-bolder">Events</a>
             </p>
-            <a href="https://bigbluebutton.org/" className="fs-5 text-link fw-bolder">
-              {t('homepage.learn_more')}
-              <ArrowRightIcon className="hi-s ms-2" />
-            </a>
           </div>
-        </Col>
-      </Row>
-      <Row>
-        <h4 className="text-muted text-uppercase my-4 py-1">{t('homepage.explore_features')}</h4>
-        <Col className="mb-3">
-          <HomepageFeatureCard
-            title={t('homepage.meeting_title')}
-            description={t('homepage.meeting_description')}
-            icon={<ComputerDesktopIcon className="hi-s text-white" />}
-          />
-        </Col>
-        <Col className="mb-3">
-          <HomepageFeatureCard
-            title={t('homepage.recording_title')}
-            description={t('homepage.recording_description')}
-            icon={<VideoCameraIcon className="hi-s text-white" />}
-          />
-        </Col>
-        <Col className="mb-3">
-          <HomepageFeatureCard
-            title={t('homepage.settings_title')}
-            description={t('homepage.settings_description')}
-            icon={<Cog8ToothIcon className="hi-s text-white" />}
-          />
-        </Col>
-        <Col className="mb-3">
-          <HomepageFeatureCard
-            title={t('homepage.and_more_title')}
-            description={t('homepage.and_more_description')}
-            icon={<WrenchScrewdriverIcon className="hi-s text-white" />}
-          />
         </Col>
       </Row>
     </>

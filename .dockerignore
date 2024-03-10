@@ -1,6 +1,7 @@
 # git
 .git
 .gitignore
+data
 README.md
 SECURITY.md
 .github
