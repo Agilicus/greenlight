@@ -19,3 +19,23 @@
   font-family: 'Inter';
   src: url('Inter-Regular.ttf');
 }
+
+@font-face {
+    font-family: 'Proxima Nova';
+    src: url('ProximaNova-Regular.woff2') format('woff2'),
+        url('ProximaNova-Regular.woff') format('woff'),
+        url('ProximaNova-Regular.ttf') format('truetype'),
+        url('ProximaNova-Regular.svg#ProximaNova-Regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Canada 1500';
+    src: url('Canada1500Rg-Regular.woff2') format('woff2'),
+        url('Canada1500Rg-Regular.woff') format('woff'),
+        url('Canada1500Rg-Regular.ttf') format('truetype'),
+        url('Canada1500Rg-Regular.svg#Canada1500Rg-Regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
