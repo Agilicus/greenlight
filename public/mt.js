@@ -110,7 +110,17 @@ function _doAutoSignin() {
         }
     }
 }
+
+function watch_title_changes() {
+  if ('Navigation' in window) {
+      navigation.addEventListener('navigate', () => {
+          mt('send', 'pageview');
+      });
+  }
+}
+
 window.setTimeout( () => { 
     agilicus_do_bsid();
+    watch_title_changes();
     _doAutoSignin();
-}, 1000);
+}, 800);
