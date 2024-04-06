@@ -234,7 +234,7 @@ export default function JoinCard() {
           )}
         </Row>
         <Row>
-          {!currentUser?.signed_in && (
+          {false && !currentUser?.signed_in && (
             env?.EXTERNAL_AUTH ? (
               <Stack direction="horizontal" className="d-flex justify-content-center text-muted mt-3"> {t('authentication.already_have_account')}
                 <RegularForm action={process.env.OMNIAUTH_PATH} method="POST" data-turbo="false">
