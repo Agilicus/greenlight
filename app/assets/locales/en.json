@@ -45,7 +45,7 @@
     "enter_meeting_url_instruction": "Please enter the URL of your BigBlueButton meeting in the field below."
   },
   "authentication": {
-    "sign_in": "Sign In",
+    "sign_in": "Admin Sign In",
     "sign_up": "Sign Up",
     "sign_out": "Sign Out",
     "email": "Email",
