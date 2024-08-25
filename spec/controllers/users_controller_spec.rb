@@ -66,6 +66,16 @@ RSpec.describe Api::V1::UsersController, type: :controller do
         expect(User.find_by(email: user_params[:user][:email]).role.name).to eq('User')
       end
 
+      context 'EmailOnSignup' do
+        it 'emails all admins that a new user has signed up' do
+          post :create, params: user_params
+
+          expect(ActionMailer::MailDeliveryJob).to have_been_enqueued
+                                               .at(:no_wait).exactly(:once)
+            .with('UserMailer', 'new_user_signup_email', 'deliver_now', Hash)
+        end
+      end
+
       context 'User language' do
         it 'Persists the user language in the user record' do
           post :create, params: user_params
@@ -289,6 +299,66 @@ RSpec.describe Api::V1::UsersController, type: :controller do
         expect(response).to have_http_status(:forbidden)
         expect(response.parsed_body['data']).to be_blank
         expect(response.parsed_body['errors']).not_to be_nil
+      end
+    end
+
+    context 'Allowed Domains' do
+      context 'restricted domain not set' do
+        before do
+          site_settings = instance_double(SettingGetter)
+          allow(SettingGetter).to receive(:new).with(setting_name: 'AllowedDomains', provider: 'greenlight').and_return(site_settings)
+          allow(site_settings).to receive(:call).and_return('')
+        end
+
+        it 'creates the user' do
+          expect { post :create, params: user_params }.to change(User, :count).from(0).to(1)
+        end
+      end
+
+      context 'restricted domain set to 1 domain' do
+        before do
+          site_settings = instance_double(SettingGetter)
+          allow(SettingGetter).to receive(:new).with(setting_name: 'AllowedDomains', provider: 'greenlight').and_return(site_settings)
+          allow(site_settings).to receive(:call).and_return('@domain.com')
+        end
+
+        it 'creates the user if the domain is allowed' do
+          user_params[:user][:email] = 'test@domain.com'
+          expect { post :create, params: user_params }.to change(User, :count).from(0).to(1)
+        end
+
+        it 'does not create if the domain is not allowed' do
+          user_params[:user][:email] = 'test@invaliddomain.com'
+          expect { post :create, params: user_params }.not_to change(User, :count)
+        end
+      end
+
+      context 'restricted domain set to multiple domain' do
+        before do
+          site_settings = instance_double(SettingGetter)
+          allow(SettingGetter).to receive(:new).with(setting_name: 'AllowedDomains', provider: 'greenlight').and_return(site_settings)
+          allow(site_settings).to receive(:call).and_return('@example.com,@test.com,@domain.com')
+        end
+
+        it 'creates the user if the domain is allowed 1' do
+          user_params[:user][:email] = 'test@example.com'
+          expect { post :create, params: user_params }.to change(User, :count).from(0).to(1)
+        end
+
+        it 'creates the user if the domain is allowed 2' do
+          user_params[:user][:email] = 'test@test.com'
+          expect { post :create, params: user_params }.to change(User, :count).from(0).to(1)
+        end
+
+        it 'creates the user if the domain is allowed 3' do
+          user_params[:user][:email] = 'test@domain.com'
+          expect { post :create, params: user_params }.to change(User, :count).from(0).to(1)
+        end
+
+        it 'does not create if the domain is not allowed' do
+          user_params[:user][:email] = 'test@invaliddomain.com'
+          expect { post :create, params: user_params }.not_to change(User, :count)
+        end
       end
     end
   end

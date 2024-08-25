@@ -26,6 +26,10 @@ task :server_recordings_sync, %i[provider] => :environment do |_task, args|
 
     recordings = BigBlueButtonApi.new(provider: args[:provider]).get_recordings(meeting_ids:)
 
+    rooms.update_all(recordings_processing: 0) # rubocop:disable Rails/SkipsModelValidations
+
+    next if recordings[:recordings].blank?
+
     # Skip the entire batch if the first and last recordings exist
     if Recording.exists?(record_id: recordings[:recordings][0][:recordID]) && Recording.exists?(record_id: recordings[:recordings][-1][:recordID])
       next

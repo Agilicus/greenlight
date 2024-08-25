@@ -30,7 +30,8 @@ class ExternalController < ApplicationController
 
     user_info = build_user_info(credentials)
 
-    user = User.find_by(external_id: credentials['uid'], provider:) || User.find_by(email: credentials['info']['email'], provider:)
+    user = User.find_by(external_id: credentials['uid'], provider:)
+
     new_user = user.blank?
 
     registration_method = SettingGetter.new(setting_name: 'RegistrationMethod', provider: current_provider).call
@@ -40,11 +41,19 @@ class ExternalController < ApplicationController
       return redirect_to root_path(error: Rails.configuration.custom_error_msgs[:invite_token_invalid])
     end
 
+    return render_error status: :forbidden unless valid_domain?(user_info[:email])
+
     # Create the user if they dont exist
     if new_user
       user = UserCreator.new(user_params: user_info, provider: current_provider, role: default_role).call
       user.save!
       create_default_room(user)
+
+      # Send admins an email if smtp is enabled
+      if ENV['SMTP_SERVER'].present?
+        UserMailer.with(user:, admin_panel_url:, base_url: request.base_url,
+                        provider: current_provider).new_user_signup_email.deliver_later
+      end
     end
 
     if SettingGetter.new(setting_name: 'ResyncOnLogin', provider:).call
@@ -58,7 +67,11 @@ class ExternalController < ApplicationController
       return redirect_to pending_path if user.pending?
     end
 
-    user.generate_session_token!
+    # set the cookie based on session timeout setting
+    session_timeout = SettingGetter.new(setting_name: 'SessionTimeout', provider: current_provider).call
+    user.generate_session_token!(extended_session: session_timeout)
+    handle_session_timeout(session_timeout.to_i, user) if session_timeout
+
     session[:session_token] = user.session_token
 
     # TODO: - Ahmad: deal with errors
@@ -90,7 +103,7 @@ class ExternalController < ApplicationController
       @room.update(recordings_processing: @room.recordings_processing - 1) unless @room.recordings_processing.zero?
     end
 
-    RecordingCreator.new(recording:).call
+    RecordingCreator.new(recording:, first_creation: true).call
 
     render json: {}, status: :ok
   end
@@ -112,6 +125,18 @@ class ExternalController < ApplicationController
   end
 
   private
+
+  def handle_session_timeout(session_timeout, user)
+    # Creates a cookie based on session timeout site setting
+    cookies.encrypted[:_extended_session] = {
+      value: {
+        session_token: user.session_token
+      },
+      expires: session_timeout.days,
+      httponly: true,
+      secure: true
+    }
+  end
 
   def extract_language_code(locale)
     locale.try(:scan, /^[a-z]{2}/)&.first || I18n.default_locale
@@ -140,5 +165,16 @@ class ExternalController < ApplicationController
       external_id: credentials['uid'],
       verified: true
     }
+  end
+
+  def valid_domain?(email)
+    allowed_domain_emails = SettingGetter.new(setting_name: 'AllowedDomains', provider: current_provider).call
+    return true if allowed_domain_emails.blank?
+
+    domains = allowed_domain_emails.split(',')
+    domains.each do |domain|
+      return true if email.end_with?(domain)
+    end
+    false
   end
 end

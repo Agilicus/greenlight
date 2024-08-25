@@ -19,11 +19,14 @@ import { useTranslation } from 'react-i18next';
 import { Container } from 'react-bootstrap';
 import useEnv from '../../hooks/queries/env/useEnv';
 import useSiteSetting from '../../hooks/queries/site_settings/useSiteSetting';
+import { useAuth } from '../../contexts/auth/AuthProvider';
 
 export default function Footer() {
   const { t } = useTranslation();
   const { data: env } = useEnv();
   const { data: links } = useSiteSetting(['Terms', 'PrivacyPolicy']);
+  const currentUser = useAuth();
+  const isAdmin = currentUser && currentUser.role && currentUser?.role.name === 'Administrator';
 
   return (
     <footer id="footer" className="footer background-whitesmoke text-center">
