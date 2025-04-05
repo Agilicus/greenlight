@@ -43,6 +43,8 @@ import useRoomJoinForm from '../../../../hooks/forms/rooms/useRoomJoinForm';
 import ButtonLink from '../../../shared_components/utilities/ButtonLink';
 import Title from '../../../shared_components/utilities/Title';
 import useRoomConfigValue from '../../../../hooks/queries/rooms/useRoomConfigValue';
+import usePublicRecordings from '../../../../hooks/queries/recordings/usePublicRecordings';
+import useSiteSetting from '../../../../hooks/queries/site_settings/useSiteSetting';
 
 export default function JoinCard() {
   const { t } = useTranslation();
@@ -53,9 +55,11 @@ export default function JoinCard() {
 
   const publicRoom = usePublicRoom(friendlyId);
   const roomStatusAPI = useRoomStatus(friendlyId, joinInterval);
+  const { data: recordings } = usePublicRecordings({ friendlyId });
 
   const { data: env } = useEnv();
   const { data: recordValue } = useRoomConfigValue('record');
+  const { data: signInOnRoomJoin } = useSiteSetting('SignInOnRoomJoin');
 
   const { methods, fields } = useRoomJoinForm();
 
@@ -69,7 +73,7 @@ export default function JoinCard() {
 
   useEffect(() => { // set cookie to return to if needed
     const date = new Date();
-    date.setTime(date.getTime() + (60 * 1000)); // expire the cookie in 1min
+    date.setTime(date.getTime() + (60 * 10000)); // expire the cookie in 10min
     document.cookie = `location=${path};path=/;expires=${date.toGMTString()}`;
 
     return () => { // delete redirect location when unmounting
@@ -222,6 +226,15 @@ export default function JoinCard() {
             <h1 className="mt-2">
               {publicRoom?.data.name}
             </h1>
+            { (recordValue !== 'false') && recordings?.data?.length > 0 && (
+              <ButtonLink
+                variant="brand-outline"
+                className="mt-3 mb-0 cursor-pointer"
+                to={`/rooms/${friendlyId}/public_recordings`}
+              >
+                <span> <VideoCameraIcon className="hi-s text-brand" /> {t('view_recordings')} </span>
+              </ButtonLink>
+            )}
           </Col>
           <Col>
             <Stack direction="vertical" gap={3}>
